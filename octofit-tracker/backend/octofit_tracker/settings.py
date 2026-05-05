@@ -29,10 +29,10 @@ DEBUG = True
 
 # Dynamicznie ustaw ALLOWED_HOSTS na podstawie zmiennej środowiskowej $CODESPACE_NAME oraz localhost
 import os
-CODESPACE_NAME = os.environ.get('CODESPACE_NAME')
+
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
-if CODESPACE_NAME:
-    ALLOWED_HOSTS.append(f'{CODESPACE_NAME}-8000.app.github.dev')
+if os.environ.get('CODESPACE_NAME'):
+    ALLOWED_HOSTS.append(f"{os.environ.get('CODESPACE_NAME')}-8000.app.github.dev")
 
 
 # Application definition
@@ -86,18 +86,26 @@ WSGI_APPLICATION = 'octofit_tracker.wsgi.application'
 
 
 # Konfiguracja bazy MongoDB przez Djongo
+mongo_client = {
+    'host': 'mongodb://localhost:27017',
+}
+
+mongo_username = os.environ.get('MONGODB_USERNAME')
+mongo_password = os.environ.get('MONGODB_PASSWORD')
+if mongo_username and mongo_password:
+    mongo_client.update({
+        'username': mongo_username,
+        'password': mongo_password,
+        'authSource': os.environ.get('MONGODB_AUTH_SOURCE', 'admin'),
+        'authMechanism': os.environ.get('MONGODB_AUTH_MECHANISM', 'SCRAM-SHA-1'),
+    })
+
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
         'NAME': 'octofit_db',
         'ENFORCE_SCHEMA': False,
-        'CLIENT': {
-            'host': 'mongodb://localhost:27017',
-            'username': '',
-            'password': '',
-            'authSource': 'admin',
-            'authMechanism': 'SCRAM-SHA-1',
-        },
+        'CLIENT': mongo_client,
     }
 }
 

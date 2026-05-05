@@ -37,8 +37,8 @@ def api_root(request, format=None):
     if codespace_name:
         base_url = f"https://{codespace_name}-8000.app.github.dev/api/"
     else:
-        # fallback na localhost
         base_url = "http://localhost:8000/api/"
+
     return Response({
         'users': f'{base_url}users/',
         'teams': f'{base_url}teams/',
@@ -49,6 +49,6 @@ def api_root(request, format=None):
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/', api_root, name='api-root'),
     path('api/', include(router.urls)),
-    path('', api_root, name='api-root'),
 ]
